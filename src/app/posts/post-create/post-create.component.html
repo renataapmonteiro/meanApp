@@ -1,1 +1,7 @@
-<h2>My first Component</h2>
+<textarea 
+    [value]="newPost" 
+    rows="6" 
+    [(ngModel)]="enteredValue"
+></textarea>
+<button (click)="onAddPost()">Save Post</button>
+<p>{{ newPost }}</p>
