@@ -119,6 +119,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "MeanApp"
+    }
+  },
+  "defaultProject": "MeanApp",
+  "cli": {
+    "analytics": false
+  }
 }
