@@ -1,50 +1,71 @@
 const express = require('express'),
           app = express();
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+const Post = require('./models/post');
+
+mongoose.connect("mongodb://localhost/notesApp", { useNewUrlParser: true, useUnifiedTopology: true  })
+.then(()=>{
+    console.log("Connected to database!!!")
+})
+.catch(()=>{
+    console.log("Connection failed!!!")
+});
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use((req, res, next)=>{
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-        "Access-Control-Allow-Headers", 
-        "Origin,X-Request-With,Content-Type, Accept"
-    );
-    res.setHeader(
-        "Access-Control-Allow-Methods", 
-        "GET, POST, PATCH, DELETE, PUT, OPTIONS"
-    );
-    next();
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PATCH, DELETE, PUT, OPTIONS"
+  );
+  next();
 });
 
-app.post('/api/posts',(req,res, next) => {
-    const post = req.body;
-    console.log(post);
+app.post("/api/posts", (req, res, next) => {
+  const post = new Post({
+    title: req.body.title,
+    content: req.body.content
+  });
+  post.save().then(createdPost => {
     res.status(201).json({
-        message: 'Post add Sucessfully'
+      message: "Post added successfully",
+      postId: createdPost._id
     });
+  });
 });
 
-
-app.use('/api/posts',(req, res, next) => {
-    const posts=[
-        {
-            id:'jhghftd212212', 
-            title:'first server side post', 
-            content:'this is coming from server'
-        },
-        {
-            id:'jhghftd2123352', 
-            title:'second server side post', 
-            content:'this is coming from server'
-        }
-    ];
+app.get("/api/posts", (req, res, next) => {
+  Post.find().then(documents => {
     res.status(200).json({
-        message: 'Data fetched sucessfully!!!',
-        posts: posts
+      message: "Post fetched successfully!",
+      posts: documents
     });
+  });
 });
 
+app.put("/api/posts/:id", (req, res, next) => {
+  const post = new Post({
+    title: req.body.title,
+    content: req.body.content
+  })
+  Post.updateOne({_id: req.params.id}, post).then( result => {
+    console.log(result);
+  });
+});
+
+app.delete("/api/posts/:id", (req, res, next) => {
+  Post.deleteOne({ _id: req.params.id }).then(result => {
+    console.log(result);
+    res.status(200).json({ message: "Post deleted!" });
+  });
+});
 
 module.exports = app;
